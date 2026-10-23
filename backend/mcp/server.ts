@@ -4,12 +4,13 @@ import { elements } from "../environment/elements.js";
 import { App } from "../environment/app.js";
 import { createMcpHonoApp } from "@modelcontextprotocol/hono";
 import type { Context } from "hono";
+import { MCP_SERVER_VERSION } from "../constants.js";
 
 // define the MCP handler
 const handler = createMcpHandler(() => {
   const server = new McpServer({
     name: "web-app-builder-agent",
-    version: "1.0.0",
+    version: MCP_SERVER_VERSION,
   });
 
   // define and register all tools
