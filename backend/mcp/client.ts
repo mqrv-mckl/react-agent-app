@@ -4,19 +4,23 @@ import {
 } from "@modelcontextprotocol/client";
 
 /**
- * Creates a new MCP client and connects it to a MCP server via HTTP using the given transport instance.
- *
- * @param {StreamableHTTPClientTransport} transport - The transport used to connect to a MCP server.
- * @returns {Promise<Client>} A promise that resolves with the connected client.
+ * Creates a new MCP Client.
+ * @param {string} mcpServerVersion - The version of the MCP Server.
+ * @param {string} name - The name of the MCP Client to be created.
+ * @returns {Client} The created MCP Client.
  */
-export async function createAndConnectClient(
+export function createClient(mcpServerVersion: string, name: string): Client {
+  return new Client({ name: name, version: mcpServerVersion });
+}
+
+/**
+ * Connects a given MCP client to an MCP Server using the given transport instance.
+ * @param {Client} client - The MCP Client to be connected.
+ * @param {StreamableHTTPClientTransport} transport - The transport used to connect to the MCP Server.
+ */
+export async function connectClient(
+  client: Client,
   transport: StreamableHTTPClientTransport,
-): Promise<Client> {
-  const client = new Client({ name: "client", version: "1.0.0" });
-  console.log("Created a MCP client");
-
+): Promise<void> {
   await client.connect(transport);
-  console.log("Connected the MCP client to the MCP server");
-
-  return client;
 }
