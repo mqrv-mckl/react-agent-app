@@ -128,7 +128,7 @@ export class Agent {
    */
   private async getSystemPrompt(): Promise<string> {
     return (
-      getSystemPromptFromFile(SystemPromptPath.AgentSystemPrompt) +
+      (await getSystemPromptFromFile(SystemPromptPath.AgentSystemPrompt)) +
       (await this.getToolString())
     );
   }

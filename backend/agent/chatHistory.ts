@@ -108,7 +108,7 @@ export class ChatHistory {
     try {
       // get summary from the LLM
       const response: SummaryResponse = await this.chat.getParsedResponse(
-        this.getSummarizationInstructions(),
+        await this.getSummarizationInstructions(),
         SummaryResponseSchema,
       );
       // assign summarized message list
@@ -181,9 +181,9 @@ export class ChatHistory {
    * @method
    * @returns {Message[]} The message list that can be given to the LLM.
    */
-  private getSummarizationInstructions(): Message[] {
+  private async getSummarizationInstructions(): Promise<Message[]> {
     // get the system prompt
-    const summarizationSystemPrompt = getSystemPromptFromFile(
+    const summarizationSystemPrompt = await getSystemPromptFromFile(
       SystemPromptPath.SummarizationSystemPrompt,
     );
 
