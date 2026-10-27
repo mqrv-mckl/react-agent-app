@@ -21,6 +21,8 @@ import { ChatHistory } from "./agent/chatHistory";
 import type { AutoSummaryOptions } from "./agent/types";
 import { connectClient, createClient } from "./mcp/client";
 import mcpServer from "./mcp/server";
+import type { WSContext } from "hono/ws";
+import type { AgentResponse } from "../shared/types";
 
 // define the MCP Client
 const mcpClient = createClient(MCP_SERVER_VERSION, MCP_CLIENT_NAME);
@@ -47,17 +49,26 @@ app.route("/", mcpServer);
 app.get("/", (c) => c.text("hello world"));
 
 // websocket
+const clients: WSContext[] = [];
 app.get(
   WS_ROUTE_PATH,
   upgradeWebSocket(() => {
     return {
-      onOpen() {
+      async onOpen(_, ws) {
         console.log("WebSocket connection opened");
+        clients.push(ws);
+
+        await new Promise((r) => setTimeout(r, 1000));
+        broadcastAgentResponse({
+          message: "the agent didn't really respond => this is just a test",
+          isFinalResponse: false,
+        });
       },
       onMessage(message) {
         // TODO: implement
       },
-      onClose() {
+      onClose(_, ws) {
+        clients.splice(clients.indexOf(ws), 1);
         console.log("WebSocket connection closed");
       },
     };
@@ -78,6 +89,10 @@ const transport = new StreamableHTTPClientTransport(
 );
 await connectClient(mcpClient, transport);
 await agent.initialize();
+
+function broadcastAgentResponse(response: AgentResponse) {
+  for (const client of clients) client.send(JSON.stringify(response));
+}
 
 // query the agent to test if everything works
 // await agent.query(
