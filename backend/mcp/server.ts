@@ -4,7 +4,7 @@ import { elements } from "../environment/elements.js";
 import { App } from "../environment/app.js";
 import { createMcpHonoApp } from "@modelcontextprotocol/hono";
 import type { Context } from "hono";
-import { MCP_SERVER_VERSION } from "../constants.js";
+import { MCP_SERVER_VERSION } from "../../shared/constants.js";
 
 // define the MCP handler
 const handler = createMcpHandler(() => {

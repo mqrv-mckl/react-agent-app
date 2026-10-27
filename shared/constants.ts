@@ -10,6 +10,7 @@ export const MCP_SERVER_VERSION = "1.0.0";
 export const MCP_CLIENT_NAME = "client";
 
 export const SERVER_PORT = 3000;
-export const SERVER_ADDRESS = "http://localhost:" + SERVER_PORT;
+export const SERVER_HOSTNAME = "localhost";
 
 export const MCP_ROUTE_PATH = "/mcp";
+export const WS_ROUTE_PATH = "/ws";

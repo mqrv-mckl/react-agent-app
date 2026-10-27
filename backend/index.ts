@@ -1,10 +1,6 @@
+import { upgradeWebSocket, websocket } from "@hono/bun";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
-import { serve } from "bun";
 import { Hono } from "hono";
-import { Agent } from "./agent/agent";
-import { Chat } from "./agent/chat";
-import { ChatHistory } from "./agent/chatHistory";
-import type { AutoSummaryOptions } from "./agent/types";
 import {
   AGENT_AUTO_SUMMARY,
   AGENT_MAX_TURNS,
@@ -15,9 +11,14 @@ import {
   MCP_CLIENT_NAME,
   MCP_ROUTE_PATH,
   MCP_SERVER_VERSION,
-  SERVER_ADDRESS,
+  SERVER_HOSTNAME,
   SERVER_PORT,
-} from "./constants";
+  WS_ROUTE_PATH,
+} from "../shared/constants";
+import { Agent } from "./agent/agent";
+import { Chat } from "./agent/chat";
+import { ChatHistory } from "./agent/chatHistory";
+import type { AutoSummaryOptions } from "./agent/types";
 import { connectClient, createClient } from "./mcp/client";
 import mcpServer from "./mcp/server";
 
@@ -45,20 +46,40 @@ const app = new Hono();
 app.route("/", mcpServer);
 app.get("/", (c) => c.text("hello world"));
 
+// websocket
+app.get(
+  WS_ROUTE_PATH,
+  upgradeWebSocket(() => {
+    return {
+      onOpen() {
+        console.log("WebSocket connection opened");
+      },
+      onMessage(message) {
+        // TODO: implement
+      },
+      onClose() {
+        console.log("WebSocket connection closed");
+      },
+    };
+  }),
+);
+
 // serve app (including the mcp server)
-serve({
+const server = Bun.serve({
   port: SERVER_PORT,
   fetch: app.fetch,
+  websocket: websocket,
 });
+console.log(`Listening on ${server.hostname}:${server.port}`);
 
 // connect the mcp client
 const transport = new StreamableHTTPClientTransport(
-  new URL(SERVER_ADDRESS + MCP_ROUTE_PATH),
+  new URL("http://" + SERVER_HOSTNAME + ":" + SERVER_PORT + MCP_ROUTE_PATH),
 );
 await connectClient(mcpClient, transport);
 await agent.initialize();
 
 // query the agent to test if everything works
-await agent.query(
-  "Add the container element to the app, that aligns it's children in one line.",
-);
+// await agent.query(
+//   "Add the container element to the app, that aligns it's children in one line.",
+// );

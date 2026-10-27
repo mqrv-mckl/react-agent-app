@@ -1,5 +1,3 @@
-import { file } from "bun";
-
 /**
  * The path of the directory containing the Markdown files with the system prompts.
  */
@@ -20,6 +18,6 @@ export const getSystemPromptFromFile = async (
   filePath: SystemPromptPath,
 ): Promise<string> => {
   console.log("Reading system prompt from", filePath);
-  const promptFile = file(filePath);
+  const promptFile = Bun.file(filePath);
   return await promptFile.text();
 };
