@@ -10,6 +10,7 @@ import {
   type MessageResponse,
   type Observation,
 } from "./types.js";
+import { broadcastAgentResponse } from "../index.js";
 
 /**
  * Represents a ReAct agent.
@@ -69,6 +70,11 @@ export class Agent {
         await this.chatHistory.addAndLogMessage({
           role: "assistant",
           content: JSON.stringify(response),
+        });
+
+        broadcastAgentResponse({
+          message: response.thought,
+          isFinalResponse: response.isFinalAnswer,
         });
 
         // check if final answer

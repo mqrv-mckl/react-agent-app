@@ -57,12 +57,6 @@ app.get(
       async onOpen(_, ws) {
         console.log("WebSocket connection opened");
         clients.push(ws);
-
-        await new Promise((r) => setTimeout(r, 1000));
-        broadcastAgentResponse({
-          message: "the agent didn't really respond => this is just a test",
-          isFinalResponse: false,
-        });
       },
       onMessage(message) {
         // TODO: implement
@@ -90,11 +84,11 @@ const transport = new StreamableHTTPClientTransport(
 await connectClient(mcpClient, transport);
 await agent.initialize();
 
-function broadcastAgentResponse(response: AgentResponse) {
+export function broadcastAgentResponse(response: AgentResponse) {
   for (const client of clients) client.send(JSON.stringify(response));
 }
 
 // query the agent to test if everything works
-// await agent.query(
-//   "Add the container element to the app, that aligns it's children in one line.",
-// );
+await agent.query(
+  "Add the container element to the app, that aligns it's children in one line.",
+);
