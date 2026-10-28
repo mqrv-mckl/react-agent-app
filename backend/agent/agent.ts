@@ -18,6 +18,15 @@ import { broadcastAgentResponse } from "../index.js";
  */
 export class Agent {
   /**
+   * True, if the agent is currently running.
+   */
+  private _isRunning: boolean = false;
+
+  get isRunning(): boolean {
+    return this._isRunning;
+  }
+
+  /**
    * Creates a new Agent instance.
    * @constructor
    * @param {Client} mcpClient - The MCP client instance used for tools.
@@ -54,6 +63,7 @@ export class Agent {
    * @returns {Promise<void>}
    */
   async query(prompt: string): Promise<void> {
+    this._isRunning = true;
     await this.chatHistory.addAndLogMessage({ role: "user", content: prompt });
 
     for (let i = 0; i < this.maxTurns; i++) {
@@ -124,6 +134,7 @@ export class Agent {
         console.warn("Turn limit reached. Stopped without a final answer.");
       }
     }
+    this._isRunning = false;
   }
 
   /**
