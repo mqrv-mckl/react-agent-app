@@ -7,26 +7,29 @@ export const sendQuerySchema = z.object({
   query: z.string().describe("The query to be sent to the agent"),
 });
 
-export default function createApiRoutes(agent: Agent): Hono {
-  const api = new Hono();
+export default function createApiRoutes(agent: Agent) {
+  return (
+    new Hono()
 
-  /**
-   * Possible response codes:
-   * - 200: successfully querried the agent
-   * - 409: agent already runnign
-   */
-  api.post("/query", sValidator("json", sendQuerySchema), (c) => {
-    if (agent.isRunning) {
-      return c.json(409);
-    }
-    const data = c.req.valid("json");
-    agent.query(data.query);
-    return c.json(200);
-  });
+      /**
+       * Possible response status codes:
+       * - 200: querry successful
+       * - 400: agent already running
+       */
+      .post("/agent/query", sValidator("json", sendQuerySchema), (c) => {
+        if (agent.isRunning) {
+          c.status(400);
+          return c.json({
+            message: "Query not accepted. The agent is currently running!",
+          });
+        }
+        const data = c.req.valid("json");
+        agent.query(data.query);
+        return c.json({ message: "Query successful" });
+      })
 
-  api.get("/agent/isRunning", (c) => {
-    return c.text(`${agent.isRunning}`);
-  });
-
-  return api;
+      .get("/agent/isRunning", (c) => {
+        return c.text(`${agent.isRunning}`);
+      })
+  );
 }

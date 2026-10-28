@@ -1,6 +1,7 @@
 import { upgradeWebSocket, websocket } from "@hono/bun";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import type { WSContext } from "hono/ws";
 import {
   AGENT_AUTO_SUMMARY,
@@ -45,28 +46,29 @@ const agent = new Agent(
   AGENT_MAX_TURNS,
 );
 
-// configure routes, etc.
-const app = new Hono();
-app.route("/", mcpServer);
-app.route(API_ROUTE_PATH, api(agent));
-
 // websocket
 const clients: WSContext[] = [];
-app.get(
-  WS_ROUTE_PATH,
-  upgradeWebSocket(() => {
-    return {
-      async onOpen(_, ws) {
-        console.log("WebSocket connection opened");
-        clients.push(ws);
-      },
-      onClose(_, ws) {
-        clients.splice(clients.indexOf(ws), 1);
-        console.log("WebSocket connection closed");
-      },
-    };
-  }),
-);
+
+// configure routes, etc.
+const app = new Hono()
+  .use("/api/*", cors())
+  .route("/", mcpServer)
+  .route(API_ROUTE_PATH, api(agent))
+  .get(
+    WS_ROUTE_PATH,
+    upgradeWebSocket(() => {
+      return {
+        async onOpen(_, ws) {
+          console.log("WebSocket connection opened");
+          clients.push(ws);
+        },
+        onClose(_, ws) {
+          clients.splice(clients.indexOf(ws), 1);
+          console.log("WebSocket connection closed");
+        },
+      };
+    }),
+  );
 
 // serve app (including the mcp server)
 const server = Bun.serve({
@@ -75,6 +77,8 @@ const server = Bun.serve({
   websocket: websocket,
 });
 console.log(`Listening on ${server.hostname}:${server.port}`);
+
+export type AppType = typeof app;
 
 // connect the mcp client
 const transport = new StreamableHTTPClientTransport(
@@ -88,6 +92,6 @@ export function broadcastAgentResponse(response: AgentResponse) {
 }
 
 // query the agent to test if everything works
-await agent.query(
-  "Add the container element to the app, that aligns it's children in one line.",
-);
+// await agent.query(
+//   "Add the container element to the app, that aligns it's children in one line.",
+// );
