@@ -90,6 +90,7 @@ export class Agent {
         // check if final answer
         if (response.isFinalAnswer) {
           console.log("Final Answer:", response.thought, "\n");
+          this._isRunning = false;
           return;
         }
 
@@ -119,6 +120,7 @@ export class Agent {
             },
           };
         } else {
+          this._isRunning = false;
           throw e;
         }
       }
