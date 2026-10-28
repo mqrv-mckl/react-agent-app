@@ -14,3 +14,4 @@ export const SERVER_HOSTNAME = "localhost";
 
 export const MCP_ROUTE_PATH = "/mcp";
 export const WS_ROUTE_PATH = "/ws";
+export const API_ROUTE_PATH = "/api";

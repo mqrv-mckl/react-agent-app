@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@hono/bun": "^1.0.1",
+    "@hono/standard-validator": "^0.4.1",
     "@modelcontextprotocol/client": "^2.3.1",
     "@modelcontextprotocol/hono": "^2.0.2",
     "@modelcontextprotocol/server": "^2.3.1",

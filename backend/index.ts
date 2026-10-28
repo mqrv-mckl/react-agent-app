@@ -1,9 +1,11 @@
 import { upgradeWebSocket, websocket } from "@hono/bun";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 import { Hono } from "hono";
+import type { WSContext } from "hono/ws";
 import {
   AGENT_AUTO_SUMMARY,
   AGENT_MAX_TURNS,
+  API_ROUTE_PATH,
   LLM_API_KEY,
   LLM_BASE_URL,
   LLM_CHARS_PER_TOKEN,
@@ -15,14 +17,14 @@ import {
   SERVER_PORT,
   WS_ROUTE_PATH,
 } from "../shared/constants";
+import type { AgentResponse } from "../shared/types";
 import { Agent } from "./agent/agent";
 import { Chat } from "./agent/chat";
 import { ChatHistory } from "./agent/chatHistory";
 import type { AutoSummaryOptions } from "./agent/types";
+import api from "./api.ts";
 import { connectClient, createClient } from "./mcp/client";
 import mcpServer from "./mcp/server";
-import type { WSContext } from "hono/ws";
-import type { AgentResponse } from "../shared/types";
 
 // define the MCP Client
 const mcpClient = createClient(MCP_SERVER_VERSION, MCP_CLIENT_NAME);
@@ -46,7 +48,7 @@ const agent = new Agent(
 // configure routes, etc.
 const app = new Hono();
 app.route("/", mcpServer);
-app.get("/", (c) => c.text("hello world"));
+app.route(API_ROUTE_PATH, api(agent));
 
 // websocket
 const clients: WSContext[] = [];
@@ -57,9 +59,6 @@ app.get(
       async onOpen(_, ws) {
         console.log("WebSocket connection opened");
         clients.push(ws);
-      },
-      onMessage(message) {
-        // TODO: implement
       },
       onClose(_, ws) {
         clients.splice(clients.indexOf(ws), 1);
