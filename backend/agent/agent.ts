@@ -10,7 +10,6 @@ import {
   type MessageResponse,
   type Observation,
 } from "./types.js";
-import { broadcastAgentResponse } from "../index.js";
 
 /**
  * Represents a ReAct agent.
@@ -48,7 +47,7 @@ export class Agent {
    */
   async initialize() {
     // add the system prompt to the chat history
-    await this.chatHistory.addAndLogMessage({
+    await this.chatHistory.addMessage({
       role: "system",
       content: await this.getSystemPrompt(),
     });
@@ -64,7 +63,7 @@ export class Agent {
    */
   async query(prompt: string): Promise<void> {
     this._isRunning = true;
-    await this.chatHistory.addAndLogMessage({ role: "user", content: prompt });
+    await this.chatHistory.addMessage({ role: "user", content: prompt });
 
     for (let i = 0; i < this.maxTurns; i++) {
       let observation: Observation;
@@ -77,14 +76,9 @@ export class Agent {
         );
 
         // add the LLM's response to messages
-        await this.chatHistory.addAndLogMessage({
+        await this.chatHistory.addMessage({
           role: "assistant",
           content: JSON.stringify(response),
-        });
-
-        broadcastAgentResponse({
-          message: response.thought,
-          isFinalResponse: response.isFinalAnswer,
         });
 
         // check if final answer
@@ -109,7 +103,7 @@ export class Agent {
         }
       } catch (e) {
         if (e instanceof Error) {
-          await this.chatHistory.addAndLogMessage({
+          await this.chatHistory.addMessage({
             role: "assistant",
             content: "(Error while retrieving the response)",
           });
@@ -126,7 +120,7 @@ export class Agent {
       }
 
       // add observation to messages
-      await this.chatHistory.addAndLogMessage({
+      await this.chatHistory.addMessage({
         role: "user",
         content: JSON.stringify(observation),
       });

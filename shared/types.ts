@@ -1,4 +1,4 @@
-export type AgentResponse = {
-  message: string;
-  isFinalResponse: boolean;
+export type Message = {
+  role: "system" | "user" | "assistant";
+  content: string;
 };

@@ -8,9 +8,10 @@ import {
   MessageResponseSchema,
   SummaryResponseSchema,
   type AutoSummaryOptions,
-  type Message,
   type SummaryResponse,
 } from "./types.js";
+import type { Message } from "../../shared/types.ts";
+import { broadcastMessage } from "../index.ts";
 
 /**
  * Represents a chat history between the user and the LLM.
@@ -50,8 +51,9 @@ export class ChatHistory {
    * @async
    * @param {Message} message - The message to be added to the history and logged.
    */
-  async addAndLogMessage(message: Message): Promise<void> {
+  async addMessage(message: Message): Promise<void> {
     this.messages.push(message);
+    broadcastMessage(message);
     console.log("Added message to chat history:");
     console.log(message);
 

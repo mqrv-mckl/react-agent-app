@@ -18,7 +18,6 @@ import {
   SERVER_PORT,
   WS_ROUTE_PATH,
 } from "../shared/constants";
-import type { AgentResponse } from "../shared/types";
 import { Agent } from "./agent/agent";
 import { Chat } from "./agent/chat";
 import { ChatHistory } from "./agent/chatHistory";
@@ -26,6 +25,7 @@ import type { AutoSummaryOptions } from "./agent/types";
 import api from "./api.ts";
 import { connectClient, createClient } from "./mcp/client";
 import mcpServer from "./mcp/server";
+import type { Message } from "../shared/types.ts";
 
 // define the MCP Client
 const mcpClient = createClient(MCP_SERVER_VERSION, MCP_CLIENT_NAME);
@@ -87,11 +87,6 @@ const transport = new StreamableHTTPClientTransport(
 await connectClient(mcpClient, transport);
 await agent.initialize();
 
-export function broadcastAgentResponse(response: AgentResponse) {
-  for (const client of clients) client.send(JSON.stringify(response));
+export function broadcastMessage(message: Message) {
+  for (const client of clients) client.send(JSON.stringify(message));
 }
-
-// query the agent to test if everything works
-// await agent.query(
-//   "Add the container element to the app, that aligns it's children in one line.",
-// );

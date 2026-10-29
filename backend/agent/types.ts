@@ -1,10 +1,5 @@
 import z from "zod";
 
-export type Message = {
-  role: "system" | "user" | "assistant";
-  content: string;
-};
-
 export const MessageResponseSchema = z.object({
   thought: z.string(),
   action: z.string(),
