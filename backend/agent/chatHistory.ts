@@ -1,17 +1,17 @@
 import { estimateTokenCount, isWithinTokenLimit } from "tokenx";
+import { broadcastMessage } from "../index.ts";
 import type { Chat } from "./chat.js";
+import { Message } from "./message.ts";
 import {
   getSystemPromptFromFile,
   SystemPromptPath,
-} from "./prompts/prompts.js";
+} from "./prompts/prompts.ts";
 import {
-  MessageResponseSchema,
   SummaryResponseSchema,
   type AutoSummaryOptions,
   type SummaryResponse,
 } from "./types.js";
-import type { Message } from "../../shared/types.ts";
-import { broadcastMessage } from "../index.ts";
+import { AGENT_AUTO_SUMMARY_THRESHOLD } from "../../shared/constants.ts";
 
 /**
  * Represents a chat history between the user and the LLM.
@@ -55,7 +55,7 @@ export class ChatHistory {
     this.messages.push(message);
     broadcastMessage(message);
     console.log("Added message to chat history:");
-    console.log(message);
+    console.log(message.toJSON());
 
     if (this.autoSummary) await this.handleAutoSummary();
   }
@@ -67,10 +67,12 @@ export class ChatHistory {
    */
   private async handleAutoSummary(): Promise<void> {
     // set a token limit (50% of the context length)
-    const tokenLimit = Math.trunc(0.5 * this.autoSummaryOptions!.contextLength);
+    const tokenLimit = Math.trunc(
+      AGENT_AUTO_SUMMARY_THRESHOLD * this.autoSummaryOptions!.contextLength,
+    );
 
     // calculate the estimated token count using tokenx
-    const currentMessageString = JSON.stringify(this.messages);
+    const currentMessageString = this.getMessageString();
     const tokenEstimationOptions = {
       defaultCharsPerToken: this.autoSummaryOptions!.charactersPerToken,
     };
@@ -98,6 +100,16 @@ export class ChatHistory {
   }
 
   /**
+   * Returns the message array as string.
+   * @method
+   */
+  private getMessageString(): string {
+    const currentMessages: string[] = [];
+    this.messages.forEach((m) => currentMessages.push(m.toString()));
+    return currentMessages.join();
+  }
+
+  /**
    * Summarizes the messages using the LLM.
    * Only works, if there's at least one final answer in the chat history.
    * @method
@@ -119,7 +131,7 @@ export class ChatHistory {
       // log to console
       console.log("----------------------------------------------");
       console.log("Chat history was summarized. Summarized version:");
-      for (const m of this.messages) console.log(m);
+      for (const m of this.messages) console.log(m.toJSON());
       console.log("----------------------------------------------");
     } catch (e) {
       if (e instanceof Error) {
@@ -140,18 +152,9 @@ export class ChatHistory {
    * @returns {number} The index of the latest final answer inside the current message list (or -1 if there currently is no final answer).
    */
   private getIndexOfLatestFinalAnswer(): number {
-    return this.messages.findLastIndex((message) => {
-      if (message.content.startsWith("{")) {
-        const parsedMessage = MessageResponseSchema.safeParse(
-          JSON.parse(message.content),
-        );
-        if (parsedMessage.success) {
-          return parsedMessage.data.isFinalAnswer;
-        }
-        return false;
-      }
-      return false;
-    });
+    return this.messages.findLastIndex(
+      (message) => message.isAgentResponse() && message.isFinalAnswer(),
+    );
   }
 
   /**
@@ -197,14 +200,12 @@ export class ChatHistory {
 
     // assemble message for the LLM
     const summarizationInstructions: Message[] = [];
-    summarizationInstructions.push({
-      role: "system",
-      content: summarizationSystemPrompt,
-    });
-    summarizationInstructions.push({
-      role: "user",
-      content: JSON.stringify(completeQueries),
-    });
+    summarizationInstructions.push(
+      new Message("system", summarizationSystemPrompt),
+    );
+    summarizationInstructions.push(
+      new Message("user", JSON.stringify(completeQueries)),
+    );
 
     return summarizationInstructions;
   }
@@ -221,14 +222,15 @@ export class ChatHistory {
     // assemble the summarized message list
     const newMessageList: Message[] = [];
     newMessageList.push(this.messages[0]!); // add system prompt
-    newMessageList.push({
-      role: "user",
-      content: "Summary: " + summaryResponse.querySummary,
-    });
-    newMessageList.push({
-      role: "assistant",
-      content: "Summary: " + summaryResponse.completedTasksSummary,
-    });
+    newMessageList.push(
+      new Message("user", "Summary: " + summaryResponse.querySummary),
+    );
+    newMessageList.push(
+      new Message(
+        "assistant",
+        "Summary: " + summaryResponse.completedTasksSummary,
+      ),
+    );
     // if a query without a final answer exists, append the messages after the summary
     if (this.messages.length > this.getIndexOfLatestFinalAnswer() + 1) {
       newMessageList.push(

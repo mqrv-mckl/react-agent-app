@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { hc } from "hono/client";
 import { ref, type Ref } from "vue";
+import { Message } from "../../backend/agent/message.ts";
 import type { AppType } from "../../backend/index.ts";
 import {
   SERVER_HOSTNAME,
   SERVER_PORT,
   WS_ROUTE_PATH,
 } from "../../shared/constants.ts";
-import type { Message } from "../../shared/types.ts";
 
 // web socket
 const socket = new WebSocket(
@@ -15,13 +15,17 @@ const socket = new WebSocket(
 );
 socket.onopen = () => console.log("WebSocket client opened");
 const messages: Ref<Message[]> = ref([]);
-socket.onmessage = (msg) => messages.value.push(JSON.parse(msg.data));
+socket.onmessage = (msg) => {
+  const parsed: Message = JSON.parse(msg.data);
+  messages.value.push(new Message(parsed.role, parsed.content));
+};
 
 // hono client (RPC mechanism)
 const client = hc<AppType>(
   "http://" + SERVER_HOSTNAME + ":" + SERVER_PORT + "/",
 );
 
+// query the agent using the hono client
 async function queryAgent(query: string) {
   const res = await client.api.agent.query.$post({
     json: { query: query },
@@ -42,21 +46,26 @@ let query: string = "";
   <h3>Input:</h3>
   <div>
     <input v-model="query" placeholder="Write a query ..." />
-    <button @click="queryAgent(query)">Enter</button>
+    <button
+      @click="
+        {
+          queryAgent(query);
+          query = '';
+        }
+      "
+    >
+      Enter
+    </button>
   </div>
   <h3>Messages:</h3>
-  <!-- TODO: nice formatting of all messages (instead of plain JSON) -->
-  <div v-for="message in messages">
-    <p v-if="message.role === 'user'" v-text="'User: ' + message.content"></p>
+  <div v-for="message in messages.values()">
+    <p v-if="message.isUserQuery()" v-text="'User: ' + message.content"></p>
     <p
-      v-if="message.role === 'assistant'"
-      v-text="'Assistant: ' + message.content"
+      v-if="message.isAgentResponse()"
+      :style="message.isFinalAnswer() ? { fontWeight: 700 } : {}"
+      v-text="'Assistant: ' + message.getAgentThought()"
     ></p>
   </div>
-  <!-- <div v-for="response in responses"> -->
-  <!--   <p v-if="!response.isFinalResponse" v-text="response.message"></p> -->
-  <!--   <p v-else style="font-weight: 700" v-text="response.message"></p> -->
-  <!-- </div> -->
 </template>
 
 <style scoped></style>

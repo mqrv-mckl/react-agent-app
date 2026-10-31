@@ -5,6 +5,7 @@ export const LLM_CHARS_PER_TOKEN = 4; // https://qwen.readthedocs.io/en/latest/g
 
 export const AGENT_MAX_TURNS = 10;
 export const AGENT_AUTO_SUMMARY = true;
+export const AGENT_AUTO_SUMMARY_THRESHOLD = 0.01;
 
 export const MCP_SERVER_VERSION = "1.0.0";
 export const MCP_CLIENT_NAME = "client";

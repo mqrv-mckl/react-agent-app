@@ -25,7 +25,7 @@ import type { AutoSummaryOptions } from "./agent/types";
 import api from "./api.ts";
 import { connectClient, createClient } from "./mcp/client";
 import mcpServer from "./mcp/server";
-import type { Message } from "../shared/types.ts";
+import { Message } from "./agent/message.ts";
 
 // define the MCP Client
 const mcpClient = createClient(MCP_SERVER_VERSION, MCP_CLIENT_NAME);
@@ -87,6 +87,6 @@ const transport = new StreamableHTTPClientTransport(
 await connectClient(mcpClient, transport);
 await agent.initialize();
 
-export function broadcastMessage(message: Message) {
-  for (const client of clients) client.send(JSON.stringify(message));
+export function broadcastMessage(message: Message): void {
+  for (const client of clients) client.send(message.toString());
 }

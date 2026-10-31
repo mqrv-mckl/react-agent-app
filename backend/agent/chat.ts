@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import z, { ZodObject } from "zod";
-import { type Message } from "../../shared/types.ts";
+import { Message } from "./message";
 
 /**
  * Represents the resoning effort levels defined by the OpenAI Chat Completions API.

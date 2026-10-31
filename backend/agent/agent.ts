@@ -1,6 +1,7 @@
 import type { Client } from "@modelcontextprotocol/client";
 import { Chat } from "./chat.js";
 import type { ChatHistory } from "./chatHistory.js";
+import { Message } from "./message.js";
 import {
   getSystemPromptFromFile,
   SystemPromptPath,
@@ -47,10 +48,9 @@ export class Agent {
    */
   async initialize() {
     // add the system prompt to the chat history
-    await this.chatHistory.addMessage({
-      role: "system",
-      content: await this.getSystemPrompt(),
-    });
+    await this.chatHistory.addMessage(
+      new Message("system", await this.getSystemPrompt()),
+    );
     console.log("Successfully initialized the agent");
   }
 
@@ -63,7 +63,7 @@ export class Agent {
    */
   async query(prompt: string): Promise<void> {
     this._isRunning = true;
-    await this.chatHistory.addMessage({ role: "user", content: prompt });
+    await this.chatHistory.addMessage(new Message("user", prompt));
 
     for (let i = 0; i < this.maxTurns; i++) {
       let observation: Observation;
@@ -76,10 +76,9 @@ export class Agent {
         );
 
         // add the LLM's response to messages
-        await this.chatHistory.addMessage({
-          role: "assistant",
-          content: JSON.stringify(response),
-        });
+        await this.chatHistory.addMessage(
+          new Message("assistant", JSON.stringify(response)),
+        );
 
         // check if final answer
         if (response.isFinalAnswer) {
@@ -103,10 +102,9 @@ export class Agent {
         }
       } catch (e) {
         if (e instanceof Error) {
-          await this.chatHistory.addMessage({
-            role: "assistant",
-            content: "(Error while retrieving the response)",
-          });
+          await this.chatHistory.addMessage(
+            new Message("assistant", "(Error while retrieving the response)"),
+          );
           observation = {
             success: false,
             data: {
@@ -120,10 +118,9 @@ export class Agent {
       }
 
       // add observation to messages
-      await this.chatHistory.addMessage({
-        role: "user",
-        content: JSON.stringify(observation),
-      });
+      await this.chatHistory.addMessage(
+        new Message("user", JSON.stringify(observation)),
+      );
 
       // check if turn limit reached
       if (i === this.maxTurns - 1) {
