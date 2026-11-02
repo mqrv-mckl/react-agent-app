@@ -22,7 +22,7 @@ import { Agent } from "./agent/agent";
 import { Chat } from "./agent/chat";
 import { ChatHistory } from "./agent/chatHistory";
 import type { AutoSummaryOptions } from "./agent/types";
-import { createAgentApiRoutes, createAppApiRoutes } from "./api.ts";
+import apiRoutes from "./api.ts";
 import { connectClient, createClient } from "./mcp/client";
 import mcpServer from "./mcp/server";
 import { Message } from "./agent/message.ts";
@@ -53,8 +53,7 @@ const clients: WSContext[] = [];
 const app = new Hono()
   .use("/api/*", cors())
   .route("/", mcpServer)
-  .route(API_ROUTE_PATH, createAgentApiRoutes(agent))
-  .route(API_ROUTE_PATH, createAppApiRoutes())
+  .route(API_ROUTE_PATH, apiRoutes(agent))
   .get(
     WS_ROUTE_PATH,
     upgradeWebSocket(() => {
