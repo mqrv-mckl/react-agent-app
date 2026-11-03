@@ -11,12 +11,12 @@ const AppState = defineAsyncComponent(
 <template>
   <div class="flex space-x-4 m-4">
     <div>
+      <ChatInterface />
+    </div>
+    <div>
       <Suspense>
         <AppState />
       </Suspense>
-    </div>
-    <div>
-      <ChatInterface />
     </div>
   </div>
 </template>
