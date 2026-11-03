@@ -1,4 +1,5 @@
-import { ElementCategory, elements, type Element } from "./elements.js";
+import { ElementCategory, type Element } from "../../shared/types.ts";
+import { elements } from "./elements.ts";
 
 /**
  * Represents a minimal web app builder that uses the Singleton pattern.

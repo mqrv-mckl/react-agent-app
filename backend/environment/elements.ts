@@ -1,18 +1,4 @@
-// describes all existing categories of elements
-export enum ElementCategory {
-  System = "SYSTEM",
-  Basic = "BASIC",
-  Interactive = "INTERACTIVE",
-  Container = "CONTAINER",
-  Chart = "CHART",
-}
-
-export type Element = {
-  id: string;
-  name: string;
-  category: ElementCategory;
-  description: string;
-};
+import { type Element, ElementCategory } from "../../shared/types.ts";
 
 const element = (
   id: string,

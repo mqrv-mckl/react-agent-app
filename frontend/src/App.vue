@@ -1,15 +1,22 @@
 <script setup lang="ts">
-import AppState from "./components/AppState.vue";
+// import AppState from "./components/AppState.vue";
+import { defineAsyncComponent } from "vue";
 import ChatInterface from "./components/ChatInterface.vue";
+
+const AppState = defineAsyncComponent(
+  () => import("./components/AppState.vue"),
+);
 </script>
 
 <template>
-  <div>
-    <div class="m-5">
-      <ChatInterface />
+  <div class="flex space-x-4 m-4">
+    <div>
+      <Suspense>
+        <AppState />
+      </Suspense>
     </div>
-    <div class="m-5">
-      <AppState />
+    <div>
+      <ChatInterface />
     </div>
   </div>
 </template>
