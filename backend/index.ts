@@ -26,7 +26,7 @@ import apiRoutes from "./api.ts";
 import { connectClient, createClient } from "./mcp/client";
 import mcpServer from "./mcp/server";
 import { Message } from "./agent/message.ts";
-
+import type { AgentState, WebSocketMessage } from "../shared/types.ts";
 // define the MCP Client
 const mcpClient = createClient(MCP_SERVER_VERSION, MCP_CLIENT_NAME);
 
@@ -88,5 +88,21 @@ await connectClient(mcpClient, transport);
 await agent.initialize();
 
 export function broadcastMessage(message: Message): void {
-  for (const client of clients) client.send(message.toString());
+  const wsMsg: WebSocketMessage = {
+    type: "agent_message",
+    data: JSON.stringify(message),
+  };
+  broadcast(wsMsg);
+}
+
+export function broadcastState(state: AgentState): void {
+  const wsMsg: WebSocketMessage = {
+    type: "agent_state",
+    data: state.toString(),
+  };
+  broadcast(wsMsg);
+}
+
+function broadcast(msg: WebSocketMessage) {
+  for (const client of clients) client.send(JSON.stringify(msg));
 }

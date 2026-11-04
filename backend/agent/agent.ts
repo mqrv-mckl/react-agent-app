@@ -11,6 +11,8 @@ import {
   type MessageResponse,
   type Observation,
 } from "./types.js";
+import type { AgentState } from "../../shared/types.js";
+import { broadcastState } from "../index.js";
 
 /**
  * Represents a ReAct agent.
@@ -20,10 +22,14 @@ export class Agent {
   /**
    * True, if the agent is currently running.
    */
-  private _isRunning: boolean = false;
+  private _state: AgentState = "NOT_RUNNING";
 
-  get isRunning(): boolean {
-    return this._isRunning;
+  get state(): AgentState {
+    return this._state;
+  }
+  private set state(state: AgentState) {
+    this._state = state;
+    broadcastState(state);
   }
 
   /**
@@ -62,13 +68,13 @@ export class Agent {
    * @returns {Promise<void>}
    */
   async query(prompt: string): Promise<void> {
-    this._isRunning = true;
     await this.chatHistory.addMessage(new Message("user", prompt));
 
     for (let i = 0; i < this.maxTurns; i++) {
       let observation: Observation;
 
       // retrieve parsed response
+      this.state = "REASONING";
       try {
         const response = await this.chat.getParsedResponse(
           this.chatHistory.get(),
@@ -83,12 +89,13 @@ export class Agent {
         // check if final answer
         if (response.isFinalAnswer) {
           console.log("Final Answer:", response.thought, "\n");
-          this._isRunning = false;
+          this.state = "NOT_RUNNING";
           return;
         }
 
         // execute action
         try {
+          this.state = "EXECUTING_TOOL";
           observation = await this.executeAction(response);
         } catch (e) {
           observation = {
@@ -112,7 +119,7 @@ export class Agent {
             },
           };
         } else {
-          this._isRunning = false;
+          this.state = "NOT_RUNNING";
           throw e;
         }
       }
@@ -127,7 +134,7 @@ export class Agent {
         console.warn("Turn limit reached. Stopped without a final answer.");
       }
     }
-    this._isRunning = false;
+    this.state = "NOT_RUNNING";
   }
 
   /**

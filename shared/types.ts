@@ -13,3 +13,15 @@ export enum ElementCategory {
   Container = "CONTAINER",
   Chart = "CHART",
 }
+
+export type AgentState = "NOT_RUNNING" | "REASONING" | "EXECUTING_TOOL";
+
+export type WebSocketMessage =
+  | {
+      type: "agent_message";
+      data: string;
+    }
+  | {
+      type: "agent_state";
+      data: string;
+    };
