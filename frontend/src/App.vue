@@ -18,6 +18,9 @@ const AppState = defineAsyncComponent(
         <AppState />
       </Suspense>
     </div>
+    <div>
+      <AgentState />
+    </div>
   </div>
 </template>
 

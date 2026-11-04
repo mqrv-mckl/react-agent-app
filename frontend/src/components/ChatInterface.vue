@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { queryAgent, messageList } from "@/main.ts";
+import AgentState from "./AgentState.vue";
 import { ref } from "vue";
 let query: string = "";
 const inputAndButtonStyling = ref("border my-2 p-1 rounded-md");
@@ -11,8 +12,11 @@ function enterQuery() {
 </script>
 
 <template>
-  <div class="flex flex-col bg-gray-900 px-5 p-3 rounded-xl max-w-200">
-    <div class="space-x-2">
+  <div class="flex flex-col bg-gray-900 px-5 p-3 rounded-xl w-150">
+    <div>
+      <AgentState class="my-2" />
+    </div>
+    <div class="flex flex-row space-x-2 items-center">
       <input
         :class="inputAndButtonStyling"
         @keyup.enter="enterQuery()"
@@ -23,7 +27,7 @@ function enterQuery() {
         Enter
       </button>
     </div>
-    <hr class="mb-4 border-gray-500" v-if="messageList.length != 0" />
+    <hr class="my-4 border-gray-500" v-if="messageList.length != 0" />
     <div v-for="message in messageList.values()">
       <p
         class="bg-gray-700 rounded-md my-1 p-1"

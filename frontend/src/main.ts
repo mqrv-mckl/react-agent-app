@@ -7,7 +7,11 @@ import {
   SERVER_PORT,
   WS_ROUTE_PATH,
 } from "../../shared/constants.ts";
-import { type Element } from "../../shared/types.ts";
+import {
+  type AgentState,
+  type Element,
+  type WebSocketMessage,
+} from "../../shared/types.ts";
 import App from "./App.vue";
 import "./style.css";
 
@@ -38,14 +42,20 @@ const socket = new WebSocket(
 );
 socket.onopen = () => console.log("WebSocket client opened");
 
-// reactive message and element list
+// reactive message list, element list and agent state
 export const messageList: Ref<Message[]> = ref([]);
 export const elementList: Ref<Element[]> = ref([]);
+export const agentState: Ref<AgentState> = ref("NOT_RUNNING");
 socket.onmessage = (msg) => {
-  console.log("Message received:", JSON.parse(msg.data));
-  const parsed: Message = JSON.parse(msg.data);
-  messageList.value.push(new Message(parsed.role, parsed.content));
-
+  const parsed: WebSocketMessage = JSON.parse(msg.data);
+  if (parsed.type === "agent_message") {
+    const message: Message = JSON.parse(parsed.data);
+    console.log("WebSocket: Received agent_message: " + JSON.parse(msg.data));
+    messageList.value.push(new Message(message.role, message.content));
+  } else if (parsed.type === "agent_state") {
+    agentState.value = parsed.data as AgentState;
+    console.log("WebSocket: Received agent_state: " + JSON.parse(msg.data));
+  }
   fetchElementList();
 };
 async function fetchElementList() {
