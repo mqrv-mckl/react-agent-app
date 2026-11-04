@@ -17,7 +17,7 @@ export default function createAgentApiRoutes(agent: Agent) {
        * - 400: agent already running
        */
       .post("/query", sValidator("json", sendQuerySchema), (c) => {
-        if (agent.isRunning) {
+        if (agent.state !== "NOT_RUNNING") {
           c.status(400);
           return c.json({
             message: "Query not accepted. The agent is currently running!",
@@ -27,9 +27,11 @@ export default function createAgentApiRoutes(agent: Agent) {
         agent.query(data.query);
         return c.json({ message: "Query successful" });
       })
-
-      .get("/isRunning", (c) => {
-        return c.text(`${agent.isRunning}`);
+      .get("/state", (c) => {
+        return c.json({ state: agent.state });
+      })
+      .get("/messageList", (c) => {
+        return c.json({ messageList: agent.chatHistory.get() });
       })
   );
 }

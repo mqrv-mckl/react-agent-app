@@ -1,4 +1,6 @@
 import type { Client } from "@modelcontextprotocol/client";
+import type { AgentState } from "../../shared/types.js";
+import { broadcastWebSocketMessage } from "../index.js";
 import { Chat } from "./chat.js";
 import type { ChatHistory } from "./chatHistory.js";
 import { Message } from "./message.js";
@@ -11,8 +13,6 @@ import {
   type MessageResponse,
   type Observation,
 } from "./types.js";
-import type { AgentState } from "../../shared/types.js";
-import { broadcastState } from "../index.js";
 
 /**
  * Represents a ReAct agent.
@@ -27,9 +27,16 @@ export class Agent {
   get state(): AgentState {
     return this._state;
   }
+
   private set state(state: AgentState) {
     this._state = state;
-    broadcastState(state);
+    broadcastWebSocketMessage("NOTIFY_AGENT_STATE_CHANGED");
+  }
+
+  private _chatHistory: ChatHistory;
+
+  get chatHistory(): ChatHistory {
+    return this._chatHistory;
   }
 
   /**
@@ -43,9 +50,11 @@ export class Agent {
   constructor(
     private readonly mcpClient: Client,
     private readonly chat: Chat,
-    private readonly chatHistory: ChatHistory,
+    chatHistory: ChatHistory,
     private readonly maxTurns: number,
-  ) {}
+  ) {
+    this._chatHistory = chatHistory;
+  }
 
   /**
    * Initializes the Agent. Must be called before using query!

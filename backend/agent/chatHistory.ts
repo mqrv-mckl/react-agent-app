@@ -1,5 +1,6 @@
 import { estimateTokenCount, isWithinTokenLimit } from "tokenx";
-import { broadcastMessage } from "../index.ts";
+import { AGENT_AUTO_SUMMARY_THRESHOLD } from "../../shared/constants.ts";
+import { broadcastWebSocketMessage } from "../index.ts";
 import type { Chat } from "./chat.js";
 import { Message } from "./message.ts";
 import {
@@ -11,7 +12,6 @@ import {
   type AutoSummaryOptions,
   type SummaryResponse,
 } from "./types.js";
-import { AGENT_AUTO_SUMMARY_THRESHOLD } from "../../shared/constants.ts";
 
 /**
  * Represents a chat history between the user and the LLM.
@@ -53,7 +53,7 @@ export class ChatHistory {
    */
   async addMessage(message: Message): Promise<void> {
     this.messages.push(message);
-    broadcastMessage(message);
+    broadcastWebSocketMessage("NOTIFY_NEW_AGENT_MESSAGE");
     console.log("Added message to chat history:");
     console.log(message.toJSON());
 

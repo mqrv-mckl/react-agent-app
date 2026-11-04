@@ -17,11 +17,4 @@ export enum ElementCategory {
 export type AgentState = "NOT_RUNNING" | "REASONING" | "EXECUTING_TOOL";
 
 export type WebSocketMessage =
-  | {
-      type: "agent_message";
-      data: string;
-    }
-  | {
-      type: "agent_state";
-      data: string;
-    };
+  "NOTIFY_NEW_AGENT_MESSAGE" | "NOTIFY_AGENT_STATE_CHANGED";

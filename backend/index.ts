@@ -18,6 +18,7 @@ import {
   SERVER_PORT,
   WS_ROUTE_PATH,
 } from "../shared/constants";
+import type { WebSocketMessage } from "../shared/types.ts";
 import { Agent } from "./agent/agent";
 import { Chat } from "./agent/chat";
 import { ChatHistory } from "./agent/chatHistory";
@@ -25,8 +26,6 @@ import type { AutoSummaryOptions } from "./agent/types";
 import apiRoutes from "./api.ts";
 import { connectClient, createClient } from "./mcp/client";
 import mcpServer from "./mcp/server";
-import { Message } from "./agent/message.ts";
-import type { AgentState, WebSocketMessage } from "../shared/types.ts";
 // define the MCP Client
 const mcpClient = createClient(MCP_SERVER_VERSION, MCP_CLIENT_NAME);
 
@@ -87,22 +86,6 @@ const transport = new StreamableHTTPClientTransport(
 await connectClient(mcpClient, transport);
 await agent.initialize();
 
-export function broadcastMessage(message: Message): void {
-  const wsMsg: WebSocketMessage = {
-    type: "agent_message",
-    data: JSON.stringify(message),
-  };
-  broadcast(wsMsg);
-}
-
-export function broadcastState(state: AgentState): void {
-  const wsMsg: WebSocketMessage = {
-    type: "agent_state",
-    data: state.toString(),
-  };
-  broadcast(wsMsg);
-}
-
-function broadcast(msg: WebSocketMessage) {
-  for (const client of clients) client.send(JSON.stringify(msg));
+export function broadcastWebSocketMessage(msg: WebSocketMessage): void {
+  for (const client of clients) client.send(msg);
 }
