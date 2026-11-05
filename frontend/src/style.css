@@ -1,1 +1,25 @@
 @import "tailwindcss";
+
+.component {
+  @apply bg-gray-900 p-5 rounded-xl;
+}
+
+.border-rounded {
+  @apply border py-1 px-2.5 rounded-md;
+}
+
+.bg-secondary {
+  @apply bg-gray-800;
+}
+
+.text-primary {
+  @apply text-gray-100;
+}
+
+.text-secondary {
+  @apply text-gray-400;
+}
+
+hr {
+  @apply my-6 border-gray-500;
+}

@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { queryAgent, chatHistory } from "@/main.ts";
+import { chatHistory, queryAgent } from "@/main.ts";
 import AgentState from "./AgentState.vue";
-import { ref } from "vue";
 let query: string = "";
-const inputAndButtonStyling = ref("border my-2 p-1 rounded-md");
 
 function enterQuery() {
   queryAgent(query);
@@ -12,38 +10,37 @@ function enterQuery() {
 </script>
 
 <template>
-  <div class="flex flex-col bg-gray-900 px-5 p-3 rounded-xl w-150">
-    <div>
-      <AgentState class="my-2" />
+  <!-- <div class="flex flex-col bg-gray-900 px-5 p-3 rounded-xl w-150"> -->
+  <div class="component">
+    <div class="flex flex-col gap-4">
+      <AgentState />
+      <div class="flex flex-row gap-1">
+        <input
+          class="border-rounded"
+          @keyup.enter="enterQuery()"
+          v-model="query"
+          placeholder="Write a query ..."
+        />
+        <button class="border-rounded" @click="enterQuery()">Enter</button>
+      </div>
     </div>
-    <div class="flex flex-row space-x-2 items-center">
-      <input
-        :class="inputAndButtonStyling"
-        @keyup.enter="enterQuery()"
-        v-model="query"
-        placeholder="Write a query ..."
-      />
-      <button :class="inputAndButtonStyling" @click="enterQuery()">
-        Enter
-      </button>
-    </div>
-    <hr class="my-4 border-gray-500" v-if="chatHistory.length != 0" />
-    <div v-for="message in chatHistory.values()">
+    <div v-for="message in chatHistory.values()" class="mt-2 text-base">
+      <hr v-if="message.isUserQuery()" />
       <p
-        class="bg-gray-700 rounded-md my-1 p-1"
         v-if="message.isUserQuery()"
-        v-text="'User: ' + message.content"
-      ></p>
+        class="bg-secondary rounded-md p-1"
+        v-text="'Query: ' + message.content"
+      />
       <p
-        class="rounded-md my-1 p-1"
-        v-if="message.isAgentResponse()"
-        :style="
-          message.isFinalAnswer()
-            ? { fontWeight: 700 }
-            : { fontStyle: 'italic' }
-        "
-        v-text="'Assistant: ' + message.getAgentThought()"
-      ></p>
+        v-if="message.isAgentResponse() && !message.isFinalAnswer()"
+        class="text-secondary text-sm italic p-1"
+        v-text="message.getAgentThought()"
+      />
+      <p
+        v-if="message.isAgentResponse() && message.isFinalAnswer()"
+        class="p-1"
+        v-text="message.getAgentThought()"
+      />
     </div>
   </div>
 </template>

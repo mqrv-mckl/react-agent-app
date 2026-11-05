@@ -9,8 +9,8 @@ const AppState = defineAsyncComponent(
 </script>
 
 <template>
-  <div class="flex space-x-4 m-4">
-    <div>
+  <div class="grid grid-cols-3 gap-4 m-4">
+    <div class="col-span-2">
       <ChatInterface />
     </div>
     <div>

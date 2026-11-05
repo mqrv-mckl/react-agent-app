@@ -2,7 +2,7 @@
 import { agentState } from "@/main";
 import { computed, type ComputedRef } from "vue";
 const defaultButtonStyle: string = "border rounded-full px-2.5 py-1";
-const notRunningStyle = defaultButtonStyle + "border-gray-400 text-gray-400";
+const notRunningStyle = defaultButtonStyle + "border-gray-400 text-secondary";
 const reasoningStyle = defaultButtonStyle + "border-green-400 text-green-400";
 const executingToolStyle =
   defaultButtonStyle + "border-yellow-400 text-yellow-400";
