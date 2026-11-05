@@ -128,9 +128,9 @@ export class Agent {
             },
           };
         } else {
-          this.state = "NOT_RUNNING";
           throw e;
         }
+        this.state = "NOT_RUNNING";
       }
 
       // add observation to messages

@@ -23,12 +23,17 @@ function enterQuery() {
         <button class="border-rounded" @click="enterQuery()">Enter</button>
       </div>
     </div>
-    <div v-for="message in chatHistory.values()" class="mt-2 text-base">
+    <div v-for="message in chatHistory.values()" class="mt-2">
       <hr v-if="message.isUserQuery()" />
       <p
         v-if="message.isUserQuery()"
         class="message bg-secondary rounded-md"
         v-text="'Query: ' + message.content"
+      />
+      <p
+        v-if="message.getErrorMessage()"
+        class="message text-secondary text-sm"
+        v-text="'Error: ' + message.getErrorMessage()"
       />
       <p
         v-if="message.isAgentResponse() && !message.isFinalAnswer()"

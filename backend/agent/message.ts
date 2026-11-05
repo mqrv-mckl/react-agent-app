@@ -50,6 +50,24 @@ export class Message {
   }
 
   /**
+   * True, if the message is an observation.
+   */
+  isObservation(): boolean {
+    return this._role === "user" && isValidJSON(this._content);
+  }
+
+  /**
+   * Returns the error message if present.
+   */
+  getErrorMessage(): string | undefined {
+    try {
+      return JSON.parse(this._content).data.errorMessage;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  /**
    * True, if this message is a response from the agent.
    */
   isAgentResponse(): boolean {
