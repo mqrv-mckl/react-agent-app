@@ -8,7 +8,7 @@ import { elementList } from "@/main";
     <p v-if="!elementList.length" class="text-secondary text-sm">(empty)</p>
     <div
       v-for="element in elementList.values()"
-      class="py-1.5 px-2.5 bg-gray-800 rounded-md space-y-0.5"
+      class="py-1.5 px-2.5 bg-secondary rounded-md space-y-0.5"
     >
       <p v-text="element.name" />
       <p

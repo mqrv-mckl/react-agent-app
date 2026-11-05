@@ -1,7 +1,11 @@
 @import "tailwindcss";
 
+.bg-primary {
+  @apply bg-black;
+}
+
 .component {
-  @apply bg-gray-900 p-5 rounded-xl;
+  @apply bg-neutral-900 p-5 rounded-xl;
 }
 
 .border-rounded {
@@ -9,17 +13,21 @@
 }
 
 .bg-secondary {
-  @apply bg-gray-800;
+  @apply bg-neutral-800;
 }
 
 .text-primary {
-  @apply text-gray-100;
+  @apply text-neutral-200;
 }
 
 .text-secondary {
-  @apply text-gray-400;
+  @apply text-neutral-400;
 }
 
 hr {
-  @apply my-6 border-gray-500;
+  @apply my-6 border-neutral-500;
+}
+
+.message {
+  @apply px-2 py-1;
 }

@@ -10,7 +10,6 @@ function enterQuery() {
 </script>
 
 <template>
-  <!-- <div class="flex flex-col bg-gray-900 px-5 p-3 rounded-xl w-150"> -->
   <div class="component">
     <div class="flex flex-col gap-4">
       <AgentState />
@@ -28,17 +27,17 @@ function enterQuery() {
       <hr v-if="message.isUserQuery()" />
       <p
         v-if="message.isUserQuery()"
-        class="bg-secondary rounded-md p-1"
+        class="message bg-secondary rounded-md"
         v-text="'Query: ' + message.content"
       />
       <p
         v-if="message.isAgentResponse() && !message.isFinalAnswer()"
-        class="text-secondary text-sm italic p-1"
+        class="message text-secondary text-sm italic"
         v-text="message.getAgentThought()"
       />
       <p
         v-if="message.isAgentResponse() && message.isFinalAnswer()"
-        class="p-1"
+        class="message"
         v-text="message.getAgentThought()"
       />
     </div>
