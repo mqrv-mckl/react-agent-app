@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { queryAgent, messageList } from "@/main.ts";
+import { queryAgent, chatHistory } from "@/main.ts";
 import AgentState from "./AgentState.vue";
 import { ref } from "vue";
 let query: string = "";
@@ -27,8 +27,8 @@ function enterQuery() {
         Enter
       </button>
     </div>
-    <hr class="my-4 border-gray-500" v-if="messageList.length != 0" />
-    <div v-for="message in messageList.values()">
+    <hr class="my-4 border-gray-500" v-if="chatHistory.length != 0" />
+    <div v-for="message in chatHistory.values()">
       <p
         class="bg-gray-700 rounded-md my-1 p-1"
         v-if="message.isUserQuery()"

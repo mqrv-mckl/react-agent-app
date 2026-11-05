@@ -30,7 +30,7 @@ export default function createAgentApiRoutes(agent: Agent) {
       .get("/state", (c) => {
         return c.json({ state: agent.state });
       })
-      .get("/messageList", (c) => {
+      .get("/chatHistory", (c) => {
         return c.json({ messageList: agent.chatHistory.get() });
       })
   );
