@@ -2,7 +2,7 @@
 
 ## Demo
 
-https://github.com/user-attachments/assets/3fa276b2-c514-4b2e-a2c5-49171c20295a
+https://github.com/user-attachments/assets/d524cbdb-0cde-4e34-a1eb-fff2d5c18906
 
 ## Work In Progress!
 
